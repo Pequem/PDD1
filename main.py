@@ -1,71 +1,85 @@
 import random
 import math
 import time
-import threading
+from concurrent import futures
+from multiprocessing import freeze_support
 import numpy
+from natsort import natsorted
+from heapq import heappop, heappush, heapify
+
 
 topLimit = 50000000
 
-def generateVector():
-    vec = []
-    for i in range(topLimit):
-        vec.append(random.uniform(0, topLimit))
+
+def sort(vec):
+    vec.sort()
     return vec
 
-
-def sort(alist):
-    if len(alist)>1:
-        mid = len(alist)//2
-        lefthalf = alist[:mid]
-        righthalf = alist[mid:]
-
-        sort(lefthalf)
-        sort(righthalf)
-
-        i=0
-        j=0
-        k=0
-        while i < len(lefthalf) and j < len(righthalf):
-            if lefthalf[i] < righthalf[j]:
-                alist[k]=lefthalf[i]
-                i=i+1
-            else:
-                alist[k]=righthalf[j]
-                j=j+1
-            k=k+1
-
-        while i < len(lefthalf):
-            alist[k]=lefthalf[i]
-            i=i+1
-            k=k+1
-
-        while j < len(righthalf):
-            alist[k]=righthalf[j]
-            j=j+1
-            k=k+1
-
-def sort2(vec):
-    vec.sort()
-
-ks = [1, 2, 4, 8]
-
-for k in ks:
-    print('Ordenando com ' + str(k) + ' processos')
-    vec = numpy.random.randint(1, topLimit, topLimit)
-    startTime = time.time()
-    while True:
-        threads = []
-        vecLength = topLimit / k
-
-        for i in range(k):
-            t = threading.Thread(target=sort, args=(vec[int(vecLength*i):int(vecLength*(i+1))], ))
-            t.start()
-            threads.append(t)
-        for t in threads:
-            result_vec = t.join()
-
-        k = math.floor(k/2)
-        if k <= 0:
+# An optimized version of Bubble Sort
+def bubbleSort(arr):
+    n = len(arr)
+   
+    # Traverse through all array elements
+    for i in range(n):
+        swapped = False
+  
+        # Last i elements are already
+        #  in place
+        for j in range(0, n-i-1):
+   
+            # traverse the array from 0 to
+            # n-i-1. Swap if the element 
+            # found is greater than the
+            # next element
+            if arr[j] > arr[j+1] :
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+  
+        # IF no two elements were swapped
+        # by inner loop, then break
+        if swapped == False:
             break
-    duration = time.time() - startTime
-    print('Tempo gasto' + str(duration) + '\n\n')
+    return arr
+
+
+if __name__ == '__main__':
+
+    ks = [1, 2, 4, 8]
+
+    results = {'1':0, '2': 0, '4': 0, '8': 0}
+
+    referenceVec = numpy.random.randint(1, topLimit, topLimit)
+    freeze_support()
+
+    executor = futures.ProcessPoolExecutor(8)
+
+    for _ in range(10):
+        for k in ks:
+            print('Ordenando com ' + str(k) + ' processos')
+            _k = k
+            vec = referenceVec[:]
+
+            startTime = time.time()
+            while True:
+                threads = []
+                vecLength = topLimit / k
+                
+                for i in range(k):
+                    tempVec = vec[int(vecLength*i):int(vecLength*(i+1))]
+                    t = executor.submit(sort, tempVec)
+                    threads.append(t)
+                
+                vec = []
+                for t in threads:
+                    result_vec = t.result()
+                    vec = numpy.append(vec, result_vec)
+
+                k = math.floor(k/2)
+                if k <= 0:
+                    break
+            duration = time.time() - startTime
+            results[str(_k)] += duration/10
+            print('Tempo gasto' + str(duration) + '\n\n')
+
+    for k in ks:
+        print('tempo medio k:'+str(k)+':'+str(results[str(k)]))
