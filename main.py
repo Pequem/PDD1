@@ -1,11 +1,8 @@
-import random
 import math
 import time
 from concurrent import futures
 from multiprocessing import freeze_support
 import numpy
-from natsort import natsorted
-from heapq import heappop, heappush, heapify
 
 
 topLimit = 5000
