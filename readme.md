@@ -36,5 +36,5 @@ Processos|Segundos
 
 ## Discursões
 
-Para ter um ganho paralisando as ordenações seria necessário usar um algoritmo que se beneficiara do vetor pré-ordenado e nisso eu só consigo pensar em BubbleSort, porem o BubbleSort ficaria horas rodando se eu usar os 50 milhões de registros.
+Para ter um ganho paralelizando as ordenações seria necessário usar um algoritmo que se beneficiara do vetor pré-ordenado e nisso eu só consigo pensar em BubbleSort, porem o BubbleSort ficaria horas rodando se eu usar os 50 milhões de registros.
 
