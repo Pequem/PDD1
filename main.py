@@ -8,7 +8,7 @@ from natsort import natsorted
 from heapq import heappop, heappush, heapify
 
 
-topLimit = 50000000
+topLimit = 5000
 
 
 def sort(vec):
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 
                 for i in range(k):
                     tempVec = vec[int(vecLength*i):int(vecLength*(i+1))]
-                    t = executor.submit(sort, tempVec)
+                    t = executor.submit(bubbleSort, tempVec)
                     threads.append(t)
                 
                 vec = []
